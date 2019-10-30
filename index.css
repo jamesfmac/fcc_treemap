@@ -1,0 +1,41 @@
+.heading {
+  display: flex;
+  justify-content: center;
+  margin: 2rem;
+  font-size: 3rem;
+}
+.description {
+  display: flex;
+  justify-content: center;
+
+  font-size: 1.5rem;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+
+}
+
+.tooltip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  text-align: center;
+  width: 150px;
+  height: 40px;
+  padding: 2px;
+  font-size: .75em;
+  background: lightsteelblue;
+  box-shadow: 1px 1px 10px;
+  border-radius: 2px;
+  pointer-events: none;
+
+ font-family: monospace;
+ letter-spacing: 0.1em;
+ font-weight: 100;
+ color: grey;
+ text-align: center;
+ z-index: 100;
+}
