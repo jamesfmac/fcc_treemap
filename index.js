@@ -1,7 +1,7 @@
 // set the dimensions and margins of the graph
 var margin = { top: 60, right: 30, bottom: 30, left: 30 },
-  width = 1200,
-  height = 825;
+  width = 1300,
+  height = 1300;
 
 let kickstarter = {};
 let movies = {};
@@ -19,52 +19,55 @@ const svg = d3
 
 function getMeasurements(el) {
   const rect = document.getElementById(el).getBoundingClientRect();
-  console.log(rect.width);
+
   return rect;
 }
 
+
+//function to wrap text
 function wrap(text, width) {
-  text.each(function() {
-    var text = d3.select(this),
-      words = text
-        .text()
-        .split(/\s+/)
-        .reverse(),
+  console.log(text, 'text');
+text.each(function() {
+  var text = d3.select(this),
+      words = text.text().split(/(?=[A-Z][^A-Z])/g).reverse(),
       word,
       line = [],
       lineNumber = 0,
       lineHeight = 1.1, // ems
       y = text.attr("y"),
       dy = parseFloat(text.attr("dy")),
-      tspan = text
-        .text(null)
-        .append("tspan")
-        .attr("x", 0)
-        .attr("y", y)
-        .attr("dy", dy + "em");
-    while ((word = words.pop())) {
-      line.push(word);
+      tspan = text.text(null).append("tspan").attr("x", text.attr('x')).attr("y", y).attr("dy", dy + "em");
+  while (word = words.pop()) {
+    line.push(word);
+    tspan.text(line.join(" "));
+    if (tspan.node().getComputedTextLength() > width) {
+      line.pop();
       tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text
-          .append("tspan")
-          .attr("x", 0)
-          .attr("y", y)
-          .attr("dy", ++lineNumber * lineHeight + dy + "em")
-          .text(word);
-      }
+      line = [word];
+      tspan = text.append("tspan").attr("x", text.attr('x')).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
     }
-  });
+  }
+});
 }
 
 const drawChart = data => {
   const title = data.name;
   const desc = "Top 100 Most Sold Video Games Grouped by Platform";
 
+
+  //get a list of the groupings 
+
+  const parents = data.children.map(child => child.name)
+
+  console.log(parents)
+
   //set up the scales
+  var colorScale = d3.scaleOrdinal()
+  .domain(parents)
+  .range(d3.schemeSet2)
+
+
+
 
   // Give the data to this cluster layout:
 
@@ -81,7 +84,7 @@ const drawChart = data => {
   // Then d3.treemap computes the position of each element of the hierarchy
   d3
     .treemap()
-    .size([width, height - 200])
+    .size([width, height - 600])
     .padding(0)(root);
 
   // use this information to add rectangles:
@@ -110,10 +113,11 @@ const drawChart = data => {
       return d.x1 - d.x0;
     })
     .attr("height", function(d) {
+      
       return d.y1 - d.y0;
     })
     .style("stroke", "white")
-    .style("fill", "slateblue");
+    .style("fill", function(d){ return colorScale(d.data.category)});
 
   // and to add the text labels
 
@@ -127,14 +131,15 @@ const drawChart = data => {
       return d.x0 + 5;
     }) // +10 to adjust position (more right)
     .attr("y", function(d) {
-      return d.y0 + 20;
+      return d.y0 + 5;
     }) // +20 to adjust position (lower)
+    .attr("dy", ".75em")
     .text(function(d) {
       return d.data.name;
     })
-
     .attr("font-size", "11px")
-    .attr("fill", "white");
+    .attr("fill", "white")
+    .call(wrap, 66);
 
   //
 
@@ -216,6 +221,32 @@ const drawChart = data => {
     */
 
   //TODO add blocks
+
+
+    //attach legend
+
+// Add one dot in the legend for each name.
+svg.selectAll("blah")
+.data(parents)
+.enter()
+.append("circle")
+  .attr("cx", 100)
+  .attr("cy", function(d,i){ return 750 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+  .attr("r", 7)
+  .style("fill", function(d){ return colorScale(d)})
+
+// Add one dot in the legend for each name.
+svg.selectAll("blah")
+.data(parents)
+.enter()
+.append("text")
+  .attr("x", 120)
+  .attr("y", function(d,i){ return 750 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+  .style("fill", function(d){ return colorScale(d)})
+  .text(function(d){ return d})
+  .attr("text-anchor", "left")
+  .style("alignment-baseline", "middle")
+
 };
 
 //fetch data and draw chart
