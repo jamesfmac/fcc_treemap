@@ -1,28 +1,53 @@
 // set the dimensions and margins of the graph
 var margin = { top: 60, right: 30, bottom: 30, left: 30 },
-  width = 1100,
+  width = 900,
   height = 1300;
 
-let kickstarter = {};
-let movies = {};
-let games = {};
+const dataSets = {
+  kickstarter: {
+    title: "Kickstarter Pledges",
+    description: "Top 100 Most Pledged Kickstarter Campaigns Grouped By Category",
+    url:
+      "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json",
+    data: {}
+  },
+  movies: {
+    title: "Movie Sales",
+    description: "Top 100 Highest Grossing Movies Grouped By Genre",
+    url:
+      "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json",
+    data: {}
+  },
+  games: {
+    title: "Videogame Sales",
+    description: "Top 100 Most Sold Video Games Grouped by Platform",
+    url:
+      "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json",
+    data: {}
+  },
+};
 
-// append the svg object to the body of the page
-const svg = d3
-  .select("#container")
-  .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("id", "chart")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// Get the container element
+var nav = document.getElementById("nav");
 
-// append the tooltip
+// Get all buttons with class="btn" inside the container
+var btns = nav.getElementsByClassName("nav-item");
+
+// Loop through the buttons and add the active class to the current/clicked button
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function() {
+    console.log(this.id);
+    console.log(movies);
+    drawChart(dataSets[this.id]);
+    var current = document.getElementsByClassName("active");
+    current[0].className = current[0].className.replace(" active", "");
+    this.className += " active";
+  });
+}
 
 //function to get width of an element
 function getMeasurements(el) {
   const rect = document.getElementById(el).getBBox();
-
   return rect;
 }
 
@@ -65,12 +90,28 @@ function wrap(text, width) {
   });
 }
 
-const drawChart = data => {
-  const title = data.name;
-  const desc = "Top 100 Most Sold Video Games Grouped by Platform";
+const drawChart = input => {
+
+  let data = input.data
+  let set = input
+
+
+  d3.select("svg").remove();
+  // append the svg object to the body of the page
+  const svg = d3
+    .select("#container")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("id", "chart")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  console.log(data);
+  let title = set.title;
+  const desc = set.description
 
   //get a list of the groupings
-
   const parents = data.children.map(child => child.name);
 
   //set up the scales
@@ -88,7 +129,7 @@ const drawChart = data => {
     .attr("id", "title")
     .attr("font-family", "sans-serif")
     .attr("font-size", "40px")
-    .attr("fill", "grey")
+    .attr("fill", "white")
     .style("text-anchor", "center")
     .attr(
       "transform",
@@ -101,52 +142,12 @@ const drawChart = data => {
     .attr("id", "description")
     .attr("font-family", "sans-serif")
     .attr("font-size", "16px")
-    .attr("fill", "grey")
+    .attr("fill", "white")
     .style("text-anchor", "center")
     .attr(
       "transform",
-      `translate(${(width - getMeasurements("description").width) / 2 
-  },35)`
+      `translate(${(width - getMeasurements("description").width) / 2},35)`
     );
-
-  //selectors 
-  svg.append('g').attr("id", "Kickstarter")
-  .append("text")
-  .text("Kickstarter")
-  .attr("id", "Kickstarter")
-  .attr("font-family", "sans-serif")
-  .attr("font-size", "14px")
-  .attr("fill", "grey")
-  .style("text-anchor", "top")
-  .attr(
-    "transform",
-    `translate(${width - getMeasurements('Kickstarter').width},0)`);
-
-    svg.append('g').attr("id", "Movies")
-    .append("text")
-    .text("Movies")
-    .attr("id", "movies")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "14px")
-    .attr("fill", "grey")
-    .style("text-anchor", "top")
-    .attr(
-      "transform",
-      `translate(${width - getMeasurements('Movies').width},25)`);
-
-      svg.append('g').attr("id", "Kickstarter")
-      .append("text")
-      .text("Videogames")
-      .attr("id", "Videogames")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", "14px")
-      .attr("fill", "grey")
-      .style("text-anchor", "center")
-      .attr(
-        "transform",
-        `translate(${width - getMeasurements('Videogames').width},45)`);
-
-
 
   //attach the tooltip
   const tooltip = d3
@@ -165,13 +166,15 @@ const drawChart = data => {
       .attr("fill", "grey");
 
     tooltip
-     
+
       .style("opacity", "0.9")
       .style("left", event.clientX + 20 + "px")
-      .style("top", event.clientY -20 + "px")
-      .attr('data-value', d.data.value)
-      
-    tooltip.html(`Name: ${d.data.name}<br/>Category: ${d.data.category} <br/>Value:${d.data.value}`);
+      .style("top", event.clientY - 20 + "px")
+      .attr("data-value", d.data.value);
+
+    tooltip.html(
+      `Name: ${d.data.name}<br/>Category: ${d.data.category} <br/>Value:${d.data.value}`
+    );
   };
 
   const handleMouseOut = function(d, i) {
@@ -261,7 +264,7 @@ const drawChart = data => {
     })
     .attr("font-size", "10px")
     .attr("fill", "black")
-    .call(wrap, 66);
+    .call(wrap, 50);
 
   //
 
@@ -270,14 +273,11 @@ const drawChart = data => {
   // Add one rect in the legend for each name.
   const legend = svg
     .append("g")
-    .attr("id",  "legend")
-    .attr(
-      "transform",
-      `translate(${(width / 2)- 105 },35)`
-    )
-    .attr('class', ()=>{
-      console.log(getMeasurements("legend"))
-      return 'blah'
+    .attr("id", "legend")
+    .attr("transform", `translate(${width / 2 - 165},35)`)
+    .attr("class", () => {
+      console.log(getMeasurements("legend"));
+      return "blah";
     });
 
   legend
@@ -289,7 +289,7 @@ const drawChart = data => {
     .append("rect")
     .attr("class", "legend-item")
     .attr("x", (d, i) => {
-      return Math.floor(i / 6) * 100;
+      return Math.floor(i / 6) * 150;
     })
     .attr("y", function(d, i) {
       return 750 + i * 25 - Math.floor(i / 6) * 150;
@@ -309,7 +309,7 @@ const drawChart = data => {
     .enter()
     .append("text")
     .attr("x", (d, i) => {
-      return 20 + Math.floor(i / 6) * 100;
+      return 20 + Math.floor(i / 6) * 150;
     })
     .attr("y", function(d, i) {
       return 750 + i * 25 - Math.floor(i / 6) * 150;
@@ -329,21 +329,21 @@ const drawChart = data => {
   try {
     let [kickstarterData, moviesData, gameData] = await Promise.all([
       fetch(
-        "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json"
+        dataSets.kickstarter.url
       ).then(response => response.json()),
       fetch(
-        "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json"
+        dataSets.movies.url
       ).then(response => response.json()),
       fetch(
-        "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json"
+        dataSets.games.url
       ).then(response => response.json())
     ]);
     //save data globally
-    kickstarter = kickstarterData;
-    movies = moviesData;
-    games = gameData;
+    dataSets.kickstarter.data = kickstarterData;
+    dataSets.movies.data = moviesData;
+    dataSets.games.data = gameData;
     //drawchart with default
-    drawChart(games);
+    drawChart(dataSets.games);
   } catch (err) {
     console.log(err);
   }

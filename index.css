@@ -7,15 +7,44 @@
 .description {
   display: flex;
   justify-content: center;
-
   font-size: 1.5rem;
+}
+main{
+  background: lightgray;
+  padding-top: 4px;
+  min-height: 100vh;
 }
 
 .container {
   display: flex;
   justify-content: center;
   font-family: sans-serif;
+  align-items: center;
 
+
+}
+.nav {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-family: sans-serif;
+  color: grey;
+}
+.nav-item {
+  padding: 5px 10px 5px 10px;
+  cursor: pointer;
+  margin-left: 3px;
+  text-align: center;
+  width: 90px
+}
+
+.nav-item.active {
+  color: #5C64D4;
+  box-shadow: 0 2px 4px rgb(0,0,0,0.18);
+background: white;
+border-radius: 4px;
+ 
 }
 
 .tooltip {
@@ -28,7 +57,7 @@
   height: 40px;
   padding: 2px;
   font-size: .75em;
-  background: whitesmoke;
+  background: white;
   box-shadow: 1px 1px 10px;
   border-radius: 2px;
   pointer-events: none;
