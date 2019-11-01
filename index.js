@@ -1,6 +1,6 @@
 // set the dimensions and margins of the graph
 var margin = { top: 60, right: 30, bottom: 30, left: 30 },
-  width = 1300,
+  width = 1100,
   height = 1300;
 
 let kickstarter = {};
@@ -17,8 +17,11 @@ const svg = d3
   .attr("id", "chart")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// append the tooltip
+
+//function to get width of an element
 function getMeasurements(el) {
-  const rect = document.getElementById(el).getBoundingClientRect();
+  const rect = document.getElementById(el).getBBox();
 
   return rect;
 }
@@ -70,8 +73,6 @@ const drawChart = data => {
 
   const parents = data.children.map(child => child.name);
 
-  console.log(parents);
-
   //set up the scales
   var colorScale = d3
     .scaleOrdinal()
@@ -104,9 +105,85 @@ const drawChart = data => {
     .style("text-anchor", "center")
     .attr(
       "transform",
-      `translate(${(width - getMeasurements("description").width) / 2 -
-        margin.left * 2},35)`
+      `translate(${(width - getMeasurements("description").width) / 2 
+  },35)`
     );
+
+  //selectors 
+  svg.append('g').attr("id", "Kickstarter")
+  .append("text")
+  .text("Kickstarter")
+  .attr("id", "Kickstarter")
+  .attr("font-family", "sans-serif")
+  .attr("font-size", "14px")
+  .attr("fill", "grey")
+  .style("text-anchor", "top")
+  .attr(
+    "transform",
+    `translate(${width - getMeasurements('Kickstarter').width},0)`);
+
+    svg.append('g').attr("id", "Movies")
+    .append("text")
+    .text("Movies")
+    .attr("id", "movies")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "14px")
+    .attr("fill", "grey")
+    .style("text-anchor", "top")
+    .attr(
+      "transform",
+      `translate(${width - getMeasurements('Movies').width},25)`);
+
+      svg.append('g').attr("id", "Kickstarter")
+      .append("text")
+      .text("Videogames")
+      .attr("id", "Videogames")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "14px")
+      .attr("fill", "grey")
+      .style("text-anchor", "center")
+      .attr(
+        "transform",
+        `translate(${width - getMeasurements('Videogames').width},45)`);
+
+
+
+  //attach the tooltip
+  const tooltip = d3
+    .select("#container")
+    .append("div")
+    .attr("class", "tooltip")
+    .attr("id", "tooltip")
+    .style("opacity", 0);
+
+  // Functions for mouse handlers
+  const handleMouseOver = function(d, i) {
+    d3.select(this)
+      .transition()
+      .duration("0")
+      .attr("opacity", ".85")
+      .attr("fill", "grey");
+
+    tooltip
+     
+      .style("opacity", "0.9")
+      .style("left", event.clientX + 20 + "px")
+      .style("top", event.clientY -20 + "px")
+      .attr('data-value', d.data.value)
+      
+    tooltip.html(`Name: ${d.data.name}<br/>Category: ${d.data.category} <br/>Value:${d.data.value}`);
+  };
+
+  const handleMouseOut = function(d, i) {
+    d3.select(this)
+      .transition()
+      .duration("")
+      .attr("opacity", "1")
+      .style("fill", function(d) {
+        return colorScale(d.data.category);
+      });
+    tooltip.style("opacity", 0);
+  };
 
   // Give the data to this cluster layout:
 
@@ -148,6 +225,7 @@ const drawChart = data => {
     .attr("data-name", d => d.data.name)
     .attr("data-value", d => d.data.value)
     .attr("data-category", d => d.data.category)
+
     .attr("width", function(d) {
       return d.x1 - d.x0;
     })
@@ -157,7 +235,9 @@ const drawChart = data => {
     .style("stroke", "white")
     .style("fill", function(d) {
       return colorScale(d.data.category);
-    });
+    })
+    .on("mousemove", handleMouseOver)
+    .on("mouseout", handleMouseOut);
 
   // and to add the text labels
 
@@ -179,65 +259,26 @@ const drawChart = data => {
     .text(function(d) {
       return d.data.name;
     })
-    .attr("font-size", "11px")
-    .attr("fill", "white")
+    .attr("font-size", "10px")
+    .attr("fill", "black")
     .call(wrap, 66);
 
   //
 
   //attach the legend
 
-  // attach the tooltip
-
-  const tooltip = d3
-    .select("#chart")
-    .append("div")
-    .attr("class", "tooltip")
-    .attr("id", "tooltip")
-
-    .style("opacity", 0);
-
-  // mouse handlers
-  /*
-
-    const handleMouseOver = function(d, i) {
-      const eduData = edu.find(o => o.fips === d.id);
-
-      d3.select(this)
-        .transition()
-        .duration("0")
-        .attr("opacity", ".85")
-        .attr("fill", "grey");
-
-      tooltip
-        .transition("0")
-        .style("opacity", "0.9")
-        .style("left", event.clientX + 20 + "px")
-        .style("top", event.clientY - 30 + "px")
-        .attr("data-education", eduData.bachelorsOrHigher);
-      tooltip.html(
-        `${eduData.area_name}, ${eduData.state} <br/> ${eduData.bachelorsOrHigher}`
-      );
-    };
-
-    const handleMouseOut = function(d, i) {
-      d3.select(this)
-        .transition()
-        .duration("")
-        .attr("opacity", "1")
-        .attr("fill", d =>
-          color(edu.find(o => o.fips === d.id).bachelorsOrHigher)
-        );
-      tooltip.transition("0").style("opacity", 0);
-    };
-    */
-
   // Add one rect in the legend for each name.
-  const legend = svg.append("g").attr("id", "legend")  .attr(
-    "transform",
-    `translate(${(width - getMeasurements("legend").width) / 2 -
-      margin.left*3},35)`
-  );
+  const legend = svg
+    .append("g")
+    .attr("id",  "legend")
+    .attr(
+      "transform",
+      `translate(${(width / 2)- 105 },35)`
+    )
+    .attr('class', ()=>{
+      console.log(getMeasurements("legend"))
+      return 'blah'
+    });
 
   legend
     .append("g")
@@ -248,11 +289,11 @@ const drawChart = data => {
     .append("rect")
     .attr("class", "legend-item")
     .attr("x", (d, i) => {
-      return  Math.floor(i / 6) * 100;
+      return Math.floor(i / 6) * 100;
     })
     .attr("y", function(d, i) {
       return 750 + i * 25 - Math.floor(i / 6) * 150;
-    }) 
+    })
     .attr("width", 12)
     .attr("height", 12)
     .style("fill", function(d) {
@@ -272,7 +313,7 @@ const drawChart = data => {
     })
     .attr("y", function(d, i) {
       return 750 + i * 25 - Math.floor(i / 6) * 150;
-    }) 
+    })
     .style("fill", function(d) {
       return colorScale(d);
     })

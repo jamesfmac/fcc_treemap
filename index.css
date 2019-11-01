@@ -14,6 +14,7 @@
 .container {
   display: flex;
   justify-content: center;
+  font-family: sans-serif;
 
 }
 
@@ -23,11 +24,11 @@
   justify-content: center;
   position: absolute;
   text-align: center;
-  width: 150px;
+  width: 200px;
   height: 40px;
   padding: 2px;
   font-size: .75em;
-  background: lightsteelblue;
+  background: whitesmoke;
   box-shadow: 1px 1px 10px;
   border-radius: 2px;
   pointer-events: none;
@@ -36,6 +37,6 @@
  letter-spacing: 0.1em;
  font-weight: 100;
  color: grey;
- text-align: center;
+ text-align: left;
  z-index: 100;
 }
