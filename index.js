@@ -1,44 +1,46 @@
 // set the dimensions and margins of the graph
-var margin = { top: 60, right: 30, bottom: 30, left: 30 },
+const margin = { top: 60, right: 30, bottom: 30, left: 30 },
   width = 900,
   height = 1300;
 
-const dataSets = {
-  kickstarter: {
+const dataSets = [
+  {
+    id: 1,
     title: "Kickstarter Pledges",
-    description: "Top 100 Most Pledged Kickstarter Campaigns Grouped By Category",
+    description:
+      "Top 100 Most Pledged Kickstarter Campaigns Grouped By Category",
     url:
       "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json",
     data: {}
   },
-  movies: {
+  {
+    id: 2,
     title: "Movie Sales",
     description: "Top 100 Highest Grossing Movies Grouped By Genre",
     url:
       "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/movie-data.json",
     data: {}
   },
-  games: {
+  {
+    id: 3,
     title: "Videogame Sales",
     description: "Top 100 Most Sold Video Games Grouped by Platform",
     url:
       "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json",
     data: {}
-  },
-};
+  }
+];
 
 // Get the container element
-var nav = document.getElementById("nav");
+const nav = document.getElementById("nav");
 
 // Get all buttons with class="btn" inside the container
-var btns = nav.getElementsByClassName("nav-item");
+const btns = nav.getElementsByClassName("nav-item");
 
 // Loop through the buttons and add the active class to the current/clicked button
 for (var i = 0; i < btns.length; i++) {
   btns[i].addEventListener("click", function() {
-    console.log(this.id);
-    console.log(movies);
-    drawChart(dataSets[this.id]);
+    drawChart(this.id);
     var current = document.getElementsByClassName("active");
     current[0].className = current[0].className.replace(" active", "");
     this.className += " active";
@@ -91,12 +93,12 @@ function wrap(text, width) {
 }
 
 const drawChart = input => {
+  
+  let { title, description, data } = dataSets.find(x => x.id == input);
 
-  let data = input.data
-  let set = input
-
-
+  // remove the previous svg
   d3.select("svg").remove();
+
   // append the svg object to the body of the page
   const svg = d3
     .select("#container")
@@ -107,12 +109,10 @@ const drawChart = input => {
     .attr("id", "chart")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  console.log(data);
-  let title = set.title;
-  const desc = set.description
-
   //get a list of the groupings
   const parents = data.children.map(child => child.name);
+
+  console.log(parents);
 
   //set up the scales
   var colorScale = d3
@@ -138,7 +138,7 @@ const drawChart = input => {
 
   heading
     .append("text")
-    .text(desc)
+    .text(description)
     .attr("id", "description")
     .attr("font-family", "sans-serif")
     .attr("font-size", "16px")
@@ -212,12 +212,14 @@ const drawChart = input => {
     .attr("id", "Map")
     .attr("transform", "translate( 0," + margin.top + ")");
 
-  map
-    .selectAll("rect")
+  const cell = map
+    .selectAll("g")
     .data(root.leaves())
     .enter()
-    .append("rect")
+    .append("g");
 
+  cell
+    .append("rect")
     .attr("x", function(d) {
       return d.x0;
     })
@@ -275,10 +277,7 @@ const drawChart = input => {
     .append("g")
     .attr("id", "legend")
     .attr("transform", `translate(${width / 2 - 165},35)`)
-    .attr("class", () => {
-      console.log(getMeasurements("legend"));
-      return "blah";
-    });
+    .attr("class", "legend");
 
   legend
     .append("g")
@@ -324,27 +323,18 @@ const drawChart = input => {
     .attr("dominant-baseline", "hanging");
 };
 
-//fetch data and draw chart
-(async function main() {
+//fetch data and draw initial chart
+
+(async function loadData(dataSets) {
   try {
-    let [kickstarterData, moviesData, gameData] = await Promise.all([
-      fetch(
-        dataSets.kickstarter.url
-      ).then(response => response.json()),
-      fetch(
-        dataSets.movies.url
-      ).then(response => response.json()),
-      fetch(
-        dataSets.games.url
-      ).then(response => response.json())
-    ]);
-    //save data globally
-    dataSets.kickstarter.data = kickstarterData;
-    dataSets.movies.data = moviesData;
-    dataSets.games.data = gameData;
-    //drawchart with default
-    drawChart(dataSets.games);
+    let fetchedData = await Promise.all(
+      dataSets.map(x => fetch(x.url).then(response => response.json()))
+    );
+    //attaching the returned data
+    dataSets.forEach((x, i) => (x.data = fetchedData[i]));
+    //drawchart with default dataset
+    drawChart(3);
   } catch (err) {
     console.log(err);
   }
-})();
+})(dataSets);
