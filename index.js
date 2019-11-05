@@ -53,45 +53,6 @@ function getMeasurements(el) {
   return rect;
 }
 
-//function to wrap text
-function wrap(text, width) {
-  console.log(text, "text");
-  text.each(function() {
-    var text = d3.select(this),
-      words = text
-        .text()
-        .split(/(?=[A-Z][^A-Z])/g)
-        .reverse(),
-      word,
-      line = [],
-      lineNumber = 0,
-      lineHeight = 1.1, // ems
-      y = text.attr("y"),
-      dy = parseFloat(text.attr("dy")),
-      tspan = text
-        .text(null)
-        .append("tspan")
-        .attr("x", text.attr("x"))
-        .attr("y", y)
-        .attr("dy", dy + "em");
-    while ((word = words.pop())) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text
-          .append("tspan")
-          .attr("x", text.attr("x"))
-          .attr("y", y)
-          .attr("dy", ++lineNumber * lineHeight + dy + "em")
-          .text(word);
-      }
-    }
-  });
-}
-
 const drawChart = input => {
   let { title, description, data } = dataSets.find(x => x.id == input);
 
@@ -162,9 +123,7 @@ const drawChart = input => {
       .transition()
       .duration("0")
       .attr("opacity", "1")
-      .style("fill", "lightgrey")
-      
-    
+      .style("fill", "lightgrey");
 
     tooltip
 
@@ -218,62 +177,43 @@ const drawChart = input => {
     .data(root.leaves())
     .enter()
     .append("g")
-    .attr("x", function(d) {
-      return d.x0;
+    .attr("class", "group")
+    .attr("transform", function(d) {
+      return "translate(" + d.x0 + "," + d.y0 + ")";
     })
-    .attr("y", function(d) {
-      return d.y0;
-    })
-    .style("overflow", 'hidden')
+  
 
   cell
     .append("rect")
     .attr("class", "tile")
+    .attr("width", d => d.x1 - d.x0)
+    .attr("height", d => d.y1 - d.y0)
     .attr("data-name", d => d.data.name)
     .attr("data-value", d => d.data.value)
     .attr("data-category", d => d.data.category)
-    .attr("x", function(d) {
-      return d.x0;
-    })
-    .attr("y", function(d) {
-      return d.y0;
-    })
-    .attr("width", function(d) {
-      return d.x1 - d.x0;
-    })
-    .attr("height", function(d) {
-      return d.y1 - d.y0;
-    })
     .style("stroke", "white")
-    .style("fill", function(d) {
-      return colorScale(d.data.category);
-    })
+    .style("fill", d => colorScale(d.data.category))
     .on("mousemove", handleMouseOver)
     .on("mouseout", handleMouseOut);
 
- // and to add the text labels
+  // and to add the text labels
 
   cell
     .append("text")
-    .attr("x", function(d) {
-      return d.x0 + 5;
-    }) // +10 to adjust position (more right)
-    .attr("y", function(d) {
-      return d.y0 + 5;
-    }) // +20 to adjust position (lower)
-    .attr("dy", ".75em")
-    .text(function(d) {
-      return d.data.name;
+    .attr("class", "tile-text")
+    .selectAll("tspan")
+    .data(function(d) {
+      return d.data.name.split(/(?=[A-Z][^A-Z])/g);
     })
-    .attr("font-size", "10px")
-    .attr("fill", "black")
-    .call(wrap, 50);
-
-   
-
-    
-
-
+    .enter()
+    .append("tspan")
+    .attr("x", 4)
+    .attr("y", function(d, i) {
+      return 15 + i * 10;
+    })
+    .text(function(d) {
+      return d;
+    });
 
   //attach the legend
 
@@ -300,9 +240,7 @@ const drawChart = input => {
     })
     .attr("width", 12)
     .attr("height", 12)
-    .style("fill", function(d) {
-      return colorScale(d);
-    });
+    .style("fill", d => colorScale(d));
 
   // Add labels to each rect
   legend

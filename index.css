@@ -9,10 +9,17 @@
   justify-content: center;
   font-size: 1.5rem;
 }
-main{
+main {
   background: lightgray;
   padding-top: 4px;
   min-height: 100vh;
+}
+
+svg {
+  font: 10px sans-serif;
+  text-align: center;
+  display: block;
+  margin: auto;
 }
 
 .container {
@@ -20,8 +27,6 @@ main{
   justify-content: center;
   font-family: sans-serif;
   align-items: center;
-
-
 }
 .nav {
   margin-top: 20px;
@@ -36,15 +41,14 @@ main{
   cursor: pointer;
   margin-left: 3px;
   text-align: center;
-  width: 90px
+  width: 90px;
 }
 
 .nav-item.active {
-  color: #5C64D4;
-  box-shadow: 0 2px 4px rgb(0,0,0,0.18);
-background: white;
-border-radius: 4px;
- 
+  color: #5c64d4;
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.18);
+  background: white;
+  border-radius: 4px;
 }
 
 .tooltip {
@@ -56,16 +60,16 @@ border-radius: 4px;
   width: 200px;
   height: 40px;
   padding: 2px;
-  font-size: .75em;
+  font-size: 0.75em;
   background: white;
   box-shadow: 1px 1px 10px;
   border-radius: 2px;
   pointer-events: none;
 
- font-family: monospace;
- letter-spacing: 0.1em;
- font-weight: 100;
- color: grey;
- text-align: left;
- z-index: 100;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  font-weight: 100;
+  color: grey;
+  text-align: left;
+  z-index: 100;
 }
