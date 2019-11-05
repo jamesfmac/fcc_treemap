@@ -93,7 +93,6 @@ function wrap(text, width) {
 }
 
 const drawChart = input => {
-  
   let { title, description, data } = dataSets.find(x => x.id == input);
 
   // remove the previous svg
@@ -162,8 +161,10 @@ const drawChart = input => {
     d3.select(this)
       .transition()
       .duration("0")
-      .attr("opacity", ".85")
-      .attr("fill", "grey");
+      .attr("opacity", "1")
+      .style("fill", "lightgrey")
+      
+    
 
     tooltip
 
@@ -216,21 +217,27 @@ const drawChart = input => {
     .selectAll("g")
     .data(root.leaves())
     .enter()
-    .append("g");
-
-  cell
-    .append("rect")
+    .append("g")
     .attr("x", function(d) {
       return d.x0;
     })
     .attr("y", function(d) {
       return d.y0;
     })
+    .style("overflow", 'hidden')
+
+  cell
+    .append("rect")
     .attr("class", "tile")
     .attr("data-name", d => d.data.name)
     .attr("data-value", d => d.data.value)
     .attr("data-category", d => d.data.category)
-
+    .attr("x", function(d) {
+      return d.x0;
+    })
+    .attr("y", function(d) {
+      return d.y0;
+    })
     .attr("width", function(d) {
       return d.x1 - d.x0;
     })
@@ -244,16 +251,10 @@ const drawChart = input => {
     .on("mousemove", handleMouseOver)
     .on("mouseout", handleMouseOut);
 
-  // and to add the text labels
+ // and to add the text labels
 
-  svg
-    .append("g")
-    .attr("id", "map-labels")
-    .selectAll("text")
-    .data(root.leaves())
-    .enter()
+  cell
     .append("text")
-    .attr("transform", "translate( 0," + margin.top + ")")
     .attr("x", function(d) {
       return d.x0 + 5;
     }) // +10 to adjust position (more right)
@@ -268,7 +269,11 @@ const drawChart = input => {
     .attr("fill", "black")
     .call(wrap, 50);
 
-  //
+   
+
+    
+
+
 
   //attach the legend
 
